@@ -25,7 +25,6 @@ ROBOTSTXT_OBEY = True
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
 MONGODB_DB = "souq"
-MONGODB_COLLECTION = "main_entry"
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32

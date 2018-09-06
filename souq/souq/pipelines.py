@@ -9,7 +9,7 @@ import pymongo
 
 from scrapy.conf import settings
 from scrapy.exceptions import DropItem
-from souq.items import CategoryItem
+from souq.items import create_index
 
 
 class SouqPipeline(object):
@@ -18,13 +18,16 @@ class SouqPipeline(object):
             settings['MONGODB_SERVER'],
             settings['MONGODB_PORT']
         )
-        db = connection[settings['MONGODB_DB']]
-        self.collection = db[settings['MONGODB_COLLECTION']]
+        self.db = connection[settings['MONGODB_DB']]
+
+    def open_spider(self, spider):
+        create_index(self.db)
 
     def process_item(self, item, spider):
-        for data in item:
-            if not data:
-                raise DropItem("Missing {}!".format(data))
-        self.collection.insert(dict(item))
+        try:
+            # try to use orm for mongo
+            self.db[item.collection_name].insert(dict(item))
+        except:
+            pass
         # spider.logger.info("Save the item into DB. Detail-{}".format(dict(item)))
         return item
