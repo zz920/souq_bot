@@ -34,8 +34,6 @@ class SellerSpider(scrapy.Spider):
         for link in url_pool:
             start_page = "{}?ref=nav&section=2&page=1".format(link)
             yield scrapy.Request(url=start_page, callback=self.parse_item_page)
-            # test one page
-            break
 
     def parse_item_page(self, response):
         start = time.time()

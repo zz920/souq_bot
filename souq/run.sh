@@ -1,2 +1,2 @@
 #!/bin/bash
-scrapy crawl sellers --loglevel INFO
+scrapy crawl sellers --loglevel INFO --logfile /var/log/souqbot.log
