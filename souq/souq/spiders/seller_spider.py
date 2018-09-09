@@ -33,18 +33,29 @@ class SellerSpider(scrapy.Spider):
         self.logger.info("==========Start Analyzing the item pages...==========")
         for link in url_pool:
             start_page = "{}?ref=nav&section=2&page=1".format(link)
-            yield scrapy.Request(url=start_page, callback=self.parse_item_page)
+            request = scrapy.Request(url=start_page, callback=self.parse_item_page)
+            request.meta['ini_url'] = start_page
+            yield request
 
     def parse_item_page(self, response):
+        ini_url = response.meta['ini_url']
+        
+        if ini_url != response.url:
+            # the page is redirected
+            self.logger.error("Page is being redirected: {}".format(ini_url))
+            return
+
         start = time.time()
         item_block = response.xpath("//div[@class='column column-block block-grid-large single-item']")
-        page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1]
+        page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1] 
         self.logger.info("----------Trying fetching page {} with {} items...----------".format(page_num, len(item_block)))
         for item in item_block:
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
             yield scrapy.Request(url=item_link, callback=self.parse_detail)
         next_page = response.xpath("//li[@class='pagination-next goToPage']/a/@href").extract_first()
-        yield scrapy.Request(url=next_page + "&section=2", callback=self.parse_item_page)
+        request = scrapy.Request(url=next_page + "&section=2", callback=self.parse_item_page)
+        request.meta['ini_url'] = next_page + "&section=2"
+        yield request
         self.logger.info("----------Finish page {} in {:.2f} seconds...----------".format(page_num, time.time() - start))
 
     def parse_detail(self, response):
