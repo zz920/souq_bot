@@ -1,5 +1,4 @@
 import re
-import time
 import scrapy
 import datetime
 
@@ -46,7 +45,7 @@ class SellerSpider(scrapy.Spider):
             return
 
         item_block = response.xpath("//div[@class='column column-block block-grid-large single-item']")
-        page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1] 
+        # page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1] 
         for item in item_block:
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
             yield scrapy.Request(url=item_link, callback=self.parse_detail)

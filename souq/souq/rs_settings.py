@@ -27,7 +27,7 @@ MONGODB_PORT = 43814
 MONGODB_DB = "souq"
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 4
 
 # Redis Scrapy Settings
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
@@ -74,7 +74,7 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'scrapy_redis.pipelines.RedisPipeline': 300
+    'scrapy_redis.pipelines.RedisPipeline': 300,
     'souq.pipelines.SouqPipeline': 301,
 }
 
