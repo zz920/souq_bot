@@ -22,7 +22,7 @@ NEWSPIDER_MODULE = 'souq.spiders'
 ROBOTSTXT_OBEY = True
 
 # DB settings
-MONGODB_SERVER = "localhost"
+MONGODB_SERVER = "172.104.135.67"
 MONGODB_PORT = 43814
 MONGODB_DB = "souq"
 
@@ -78,8 +78,8 @@ ITEM_PIPELINES = {
     'souq.pipelines.SouqPipeline': 301,
 }
 
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
+REDIS_HOST = "172.104.135.67"
+REDIS_PORT = 6369
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

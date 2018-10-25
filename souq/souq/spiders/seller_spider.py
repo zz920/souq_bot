@@ -65,12 +65,16 @@ class SellerSpider(RedisSpider):
     def parse_detail(self, response):
         try:
             product_title_block = response.xpath("//div[@class='small-12 columns product-title']")
-    
+             
             name = product_title_block.xpath("h1/text()").extract_first()
             category = product_title_block.xpath("span/a[2]/text()").extract_first()
             link = response.url
     
             price_block = response.xpath("//section[@class='price-messaging']/div//h3[@class='price is sk-clr1']")
+
+            if price_block is None:
+                # sold out
+                return 
             raw_price = price_block.xpath("text()[2]").extract_first()
             price = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", raw_price)[0]
     
