@@ -52,7 +52,12 @@ class SellerSpider(RedisSpider):
         for item in item_block:
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
             yield scrapy.Request(url=item_link, callback=self.parse_detail)
+
         next_page = response.xpath("//li[@class='pagination-next goToPage']/a/@href").extract_first()
+        
+        if next_page is None:
+            return
+
         request = scrapy.Request(url=next_page + "&section=2", callback=self.parse_item_page)
         request.meta['ini_url'] = next_page + "&section=2"
         yield request
