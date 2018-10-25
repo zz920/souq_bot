@@ -23,9 +23,12 @@ class SouqItem(scrapy.Item):
     category = scrapy.Field()
     link = scrapy.Field()
     price = scrapy.Field()
+    trace_id = scrapy.Field()
+
     seller = scrapy.Field()
     seller_link = scrapy.Field()
     description = scrapy.Field()
+    create_at = scrapy.Field()
     update_at = scrapy.Field()
 
     collection_name = "Souqitem"
@@ -38,5 +41,9 @@ def create_index(db):
     )
     db[SouqItem.collection_name].create_index(
         [("link", pymongo.DESCENDING)],
+        unique=True
+    )
+    db[SouqItem.collection_name].create_index(
+        [("trace_id", pymongo.DESCENDING), ("create_at", pymongo.ASCENDING)],
         unique=True
     )

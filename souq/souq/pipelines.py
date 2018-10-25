@@ -14,10 +14,7 @@ from souq.items import create_index
 
 class SouqPipeline(object):
     def __init__(self):
-        connection = pymongo.MongoClient(
-            settings['MONGODB_SERVER'],
-            settings['MONGODB_PORT']
-        )
+        connection = pymongo.MongoClient(settings['MONGODB_URI'])
         self.db = connection[settings['MONGODB_DB']]
 
     def open_spider(self, spider):

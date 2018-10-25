@@ -28,7 +28,6 @@ class SellerSpider(RedisSpider):
                 for group_a in group_block.xpath("ul//li[not(@class)]/a"):
                     group_link = group_a.xpath("@href").extract_first()
                     group_name = group_a.xpath("text()").extract_first()
-                    # self.logger.info("Get link: {} for {}".format(group_link, group_name))
                     yield CategoryItem(parent=shop_title, name=group_name, link=group_link)
                     url_pool.append(group_link)
 
@@ -41,20 +40,20 @@ class SellerSpider(RedisSpider):
 
     def parse_item_page(self, response):
         ini_url = response.meta['ini_url']
-        
+
         if ini_url != response.url:
             # the page is redirected
             self.logger.error("Page is being redirected: {}".format(ini_url))
             return
 
         item_block = response.xpath("//div[@class='column column-block block-grid-large single-item']")
-        # page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1] 
+        # page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1]
         for item in item_block:
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
             yield scrapy.Request(url=item_link, callback=self.parse_detail)
 
         next_page = response.xpath("//li[@class='pagination-next goToPage']/a/@href").extract_first()
-        
+
         if next_page is None:
             return
 
@@ -65,23 +64,23 @@ class SellerSpider(RedisSpider):
     def parse_detail(self, response):
         try:
             product_title_block = response.xpath("//div[@class='small-12 columns product-title']")
-             
+
             name = product_title_block.xpath("h1/text()").extract_first()
             category = product_title_block.xpath("span/a[2]/text()").extract_first()
             link = response.url
-    
-            price_block = response.xpath("//section[@class='price-messaging']/div//h3[@class='price is sk-clr1']")
 
-            if price_block is None:
-                # sold out
-                return 
+            price_block = response.xpath("//section[@class='price-messaging']/div//h3[@class='price is sk-clr1']")
             raw_price = price_block.xpath("text()[2]").extract_first()
-            price = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", raw_price)[0]
-    
+            if raw_price is None:
+                # sold out in this case
+                price = -1
+            else:
+                price = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", raw_price)[0]
+
             description = "\n".join(response.xpath("//div[@class='item-details-mini clearfix']/ul/li/text()").extract())
-    
+
             seller_block = response.xpath("//span[@class='unit-seller-link']/a")
-    
+
             # check is amazon global
             if not seller_block:
                 seller = "Amazon Global"
@@ -89,11 +88,13 @@ class SellerSpider(RedisSpider):
             else:
                 seller = seller_block.xpath("b/text()").extract_first()
                 seller_link = response.xpath("@href").extract_first()
-    
+
+            create_at = datetime.datetime.now()
             update_at = datetime.datetime.now()
-    
-            # self.logger.info("::::Fetchr item {} - {} AED::::".format(name[10:], price))
-            yield SouqItem(name=name, category=category, link=link, price=price, seller=seller, seller_link=seller_link,
-                           description=description, update_at=update_at)
+
+            self.logger.debug("::::Fetchr item {} - {} AED::::".format(name[10:], price))
+            yield SouqItem(name=name, category=category, link=link, price=price, trace_id=trace_id,
+                           seller=seller, seller_link=seller_link,
+                           description=description, create_at=create_at, update_at=update_at)
         except Exception as e:
             self.logger.error("Exception {}, try {} manually".format(e, link))
