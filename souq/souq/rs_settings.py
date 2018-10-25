@@ -79,7 +79,7 @@ ITEM_PIPELINES = {
 }
 
 REDIS_HOST = 'localhost'
-REDIS_HOST = 6379
+REDIS_PORT = 6379
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -105,3 +105,4 @@ REDIS_HOST = 6379
 RETRY_ENABLED = True
 DOWNLOAD_TIMEOUT = 15
 REDIRECT_ENABLED = True
+REACTOR_THREADPOOL_MAXSIZE = 32

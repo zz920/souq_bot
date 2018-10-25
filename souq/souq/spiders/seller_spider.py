@@ -3,9 +3,10 @@ import scrapy
 import datetime
 
 from souq.items import CategoryItem, SouqItem
+from scrapy_redis.spiders import RedisSpider
 
 
-class SellerSpider(scrapy.Spider):
+class SellerSpider(RedisSpider):
     name = "sellers"
 
     start_urls = [
