@@ -9,9 +9,11 @@ from scrapy_redis.spiders import RedisSpider
 class SellerSpider(RedisSpider):
     name = "sellers"
 
+    """
     start_urls = [
         'https://uae.souq.com/ae-en/shop-all-categories/c'
     ]
+    """
 
     def parse(self, response):
         self.logger.info("==========Finish Crawling the Index Page, Try to analyze detail page...==========")
@@ -56,30 +58,33 @@ class SellerSpider(RedisSpider):
         yield request
 
     def parse_detail(self, response):
-        product_title_block = response.xpath("//div[@class='small-12 columns product-title']")
-
-        name = product_title_block.xpath("h1/text()").extract_first()
-        category = product_title_block.xpath("span/a[2]/text()").extract_first()
-        link = response.url
-
-        price_block = response.xpath("//section[@class='price-messaging']/div//h3[@class='price is sk-clr1']")
-        raw_price = price_block.xpath("text()[2]").extract_first()
-        price = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", raw_price)[0]
-
-        description = "\n".join(response.xpath("//div[@class='item-details-mini clearfix']/ul/li/text()").extract())
-
-        seller_block = response.xpath("//span[@class='unit-seller-link']/a")
-
-        # check is amazon global
-        if not seller_block:
-            seller = "Amazon Global"
-            seller_link = ""
-        else:
-            seller = seller_block.xpath("b/text()").extract_first()
-            seller_link = response.xpath("@href").extract_first()
-
-        update_at = datetime.datetime.now()
-
-        # self.logger.info("::::Fetchr item {} - {} AED::::".format(name[10:], price))
-        yield SouqItem(name=name, category=category, link=link, price=price, seller=seller, seller_link=seller_link,
-                       description=description, update_at=update_at)
+        try:
+            product_title_block = response.xpath("//div[@class='small-12 columns product-title']")
+    
+            name = product_title_block.xpath("h1/text()").extract_first()
+            category = product_title_block.xpath("span/a[2]/text()").extract_first()
+            link = response.url
+    
+            price_block = response.xpath("//section[@class='price-messaging']/div//h3[@class='price is sk-clr1']")
+            raw_price = price_block.xpath("text()[2]").extract_first()
+            price = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", raw_price)[0]
+    
+            description = "\n".join(response.xpath("//div[@class='item-details-mini clearfix']/ul/li/text()").extract())
+    
+            seller_block = response.xpath("//span[@class='unit-seller-link']/a")
+    
+            # check is amazon global
+            if not seller_block:
+                seller = "Amazon Global"
+                seller_link = ""
+            else:
+                seller = seller_block.xpath("b/text()").extract_first()
+                seller_link = response.xpath("@href").extract_first()
+    
+            update_at = datetime.datetime.now()
+    
+            # self.logger.info("::::Fetchr item {} - {} AED::::".format(name[10:], price))
+            yield SouqItem(name=name, category=category, link=link, price=price, seller=seller, seller_link=seller_link,
+                           description=description, update_at=update_at)
+        except Exception as e:
+            self.logger.error("Exception {}, try {} manually".format(e, link))
