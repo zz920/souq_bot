@@ -27,7 +27,7 @@ MONGODB_PORT = 43814
 MONGODB_DB = "souq"
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 64
+CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -96,5 +96,5 @@ ITEM_PIPELINES = {
 
 RETRY_ENABLED = True
 DOWNLOAD_TIMEOUT = 15
-REDIRECT_ENABLED = False
+REDIRECT_ENABLED = True
 REACTOR_THREADPOOL_MAXSIZE = 32
