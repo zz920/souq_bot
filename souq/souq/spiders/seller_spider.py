@@ -68,6 +68,7 @@ class SellerSpider(RedisSpider):
             name = product_title_block.xpath("h1/text()").extract_first()
             category = product_title_block.xpath("span/a[2]/text()").extract_first()
             link = response.url
+            trace_id = link.split("/")[4].split("-")[-1]
 
             price_block = response.xpath("//section[@class='price-messaging']/div//h3[@class='price is sk-clr1']")
             raw_price = price_block.xpath("text()[2]").extract_first()
