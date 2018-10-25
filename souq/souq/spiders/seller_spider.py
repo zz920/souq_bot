@@ -45,10 +45,8 @@ class SellerSpider(scrapy.Spider):
             self.logger.error("Page is being redirected: {}".format(ini_url))
             return
 
-        start = time.time()
         item_block = response.xpath("//div[@class='column column-block block-grid-large single-item']")
         page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1] 
-        # self.logger.info("----------Trying fetching page {} with {} items...----------".format(page_num, len(item_block)))
         for item in item_block:
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
             yield scrapy.Request(url=item_link, callback=self.parse_detail)
@@ -56,7 +54,6 @@ class SellerSpider(scrapy.Spider):
         request = scrapy.Request(url=next_page + "&section=2", callback=self.parse_item_page)
         request.meta['ini_url'] = next_page + "&section=2"
         yield request
-        # self.logger.info("----------Finish page {} in {:.2f} seconds...----------".format(page_num, time.time() - start))
 
     def parse_detail(self, response):
         product_title_block = response.xpath("//div[@class='small-12 columns product-title']")
