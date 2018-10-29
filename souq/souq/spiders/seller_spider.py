@@ -6,6 +6,9 @@ from souq.items import CategoryItem, SouqItem
 from scrapy_redis.spiders import RedisSpider
 
 
+log_indent = lambda t, s: t * 20 + s + t *20
+
+
 class SellerSpider(RedisSpider):
     name = "sellers"
 
@@ -16,22 +19,22 @@ class SellerSpider(RedisSpider):
     """
 
     def parse(self, response):
-        self.logger.info("==========Finish Crawling the Index Page, Try to analyze detail page...==========")
+        self.logger.debug(log_indent("=", "Finish Crawling the Index Page, Try to analyze detail page..."))
         main_block = response.xpath("//main[@class='main-section ']")[0]
         url_pool = []
         for block in main_block.xpath("div//div[@class='large-4 columns']"):
             shop_category = block.xpath("h3/text()").extract()
             group_category = block.xpath("div[@class='grouped-list']")
-            self.logger.info("Total group numbers: {}".format(len(group_category)))
+            self.logger.debug("Total group numbers: {}".format(len(group_category)))
             for shop_title, group_block in zip(shop_category, group_category):
-                self.logger.info("Extracting {} category...".format(shop_title))
+                self.logger.debug("Extracting {} category...".format(shop_title))
                 for group_a in group_block.xpath("ul//li[not(@class)]/a"):
                     group_link = group_a.xpath("@href").extract_first()
                     group_name = group_a.xpath("text()").extract_first()
                     yield CategoryItem(parent=shop_title, name=group_name, link=group_link)
                     url_pool.append(group_link)
 
-        self.logger.info("==========Start Analyzing the item pages...==========")
+        self.logger.debug(log_indent("=", "Start Analyzing the item pages..."))
         for link in url_pool:
             start_page = "{}?ref=nav&section=2&page=1".format(link)
             request = scrapy.Request(url=start_page, callback=self.parse_item_page)
@@ -39,6 +42,7 @@ class SellerSpider(RedisSpider):
             yield request
 
     def parse_item_page(self, response):
+        self.logger.debug(log_indent("-", "Handling item page of {}".format(response.meta['ini_url'])))
         ini_url = response.meta['ini_url']
 
         if ini_url != response.url:
@@ -46,15 +50,22 @@ class SellerSpider(RedisSpider):
             self.logger.error("Page is being redirected: {}".format(ini_url))
             return
 
+        request_list = []
         item_block = response.xpath("//div[@class='column column-block block-grid-large single-item']")
         # page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1]
         for item in item_block:
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
-            yield scrapy.Request(url=item_link, callback=self.parse_detail)
+            request_list.append(scrapy.Request(url=item_link, callback=self.parse_detail))
+
+        self.logger.info("Total {} items for page {}".format(len(request_list), ini_url))
+        # enqueue requests
+        for request in request_list:
+            yield request
 
         next_page = response.xpath("//li[@class='pagination-next goToPage']/a/@href").extract_first()
 
         if next_page is None:
+            self.logger.info("Page end at {}".format(ini_url))
             return
 
         request = scrapy.Request(url=next_page + "&section=2", callback=self.parse_item_page)
@@ -67,7 +78,9 @@ class SellerSpider(RedisSpider):
 
             name = product_title_block.xpath("h1/text()").extract_first()
             category = product_title_block.xpath("span/a[2]/text()").extract_first()
+            self.logger.debug(log_indent(".", "Handle {}".format(name)))
             link = response.url
+
             trace_id = link.split("/")[4].split("-")[-1]
 
             price_block = response.xpath("//section[@class='price-messaging']/div//h3[@class='price is sk-clr1']")
