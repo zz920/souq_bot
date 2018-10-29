@@ -14,6 +14,7 @@ from souq.items import create_index
 
 class SouqPipeline(object):
     def __init__(self):
+        import ipdb; ipdb.set_trace()
         connection = pymongo.MongoClient(settings['MONGODB_URI'])
         self.db = connection[settings['MONGODB_DB']]
 
