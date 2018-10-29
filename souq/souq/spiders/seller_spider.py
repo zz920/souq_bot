@@ -1,4 +1,5 @@
 import re
+import traceback
 import scrapy
 import datetime
 
@@ -57,7 +58,7 @@ class SellerSpider(RedisSpider):
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
             request_list.append(scrapy.Request(url=item_link, callback=self.parse_detail))
 
-        self.logger.info("Total {} items for page {}".format(len(request_list), ini_url))
+        self.logger.debug("Total {} items for page {}".format(len(request_list), ini_url))
         # enqueue requests
         for request in request_list:
             yield request
@@ -110,5 +111,5 @@ class SellerSpider(RedisSpider):
             yield SouqItem(name=name, category=category, link=link, price=price, trace_id=trace_id,
                            seller=seller, seller_link=seller_link,
                            description=description, create_at=create_at, update_at=update_at)
-        except Exception as e:
-            self.logger.error("Exception {}, try {} manually".format(e, link))
+        except Exception:
+            self.logger.error("Exception {}, try {} manually".format(traceback.format_exc(), link))
