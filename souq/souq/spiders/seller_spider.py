@@ -1,3 +1,4 @@
+import os
 import re
 import traceback
 import scrapy
@@ -58,7 +59,7 @@ class SellerSpider(RedisSpider):
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
             request_list.append(scrapy.Request(url=item_link, callback=self.parse_detail))
 
-        self.logger.debug("Total {} items for page {}".format(len(request_list), ini_url))
+        self.logger.info("[{}] Total {} items for page {}".format(os.getpid(), len(request_list), ini_url))
         # enqueue requests
         for request in request_list:
             yield request
@@ -66,7 +67,7 @@ class SellerSpider(RedisSpider):
         next_page = response.xpath("//li[@class='pagination-next goToPage']/a/@href").extract_first()
 
         if next_page is None:
-            self.logger.info("Page end at {}".format(ini_url))
+            self.logger.info("[{}] Page end at {}".format(os.getpid(), ini_url))
             return
 
         request = scrapy.Request(url=next_page + "&section=2", callback=self.parse_item_page)
