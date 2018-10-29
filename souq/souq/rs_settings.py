@@ -31,6 +31,7 @@ CONCURRENT_REQUESTS = 4
 # Redis Scrapy Settings
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+SCHEDULER_PERSIST = True
 
 ITEM_PIPELINES = {
     'scrapy_redis.pipelines.RedisPipeline': 300,
