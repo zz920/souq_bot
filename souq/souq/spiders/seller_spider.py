@@ -81,11 +81,10 @@ class SellerSpider(RedisSpider):
             link = response.url
     
             price_block = response.xpath("//section[@class='price-messaging']/div//h3[@class='price is sk-clr1']")
-
-            if price_block is None:
+            raw_price = price_block.xpath("text()[2]").extract_first()
+            if raw_price is None:
                 # sold out
                 return 
-            raw_price = price_block.xpath("text()[2]").extract_first()
             price = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", raw_price)[0]
     
             description = "\n".join(response.xpath("//div[@class='item-details-mini clearfix']/ul/li/text()").extract())
