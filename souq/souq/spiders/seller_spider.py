@@ -79,6 +79,9 @@ class SellerSpider(RedisSpider):
             product_title_block = response.xpath("//div[@class='small-12 columns product-title']")
 
             name = product_title_block.xpath("h1/text()").extract_first()
+            if name is None:
+                # invalid item
+                return
             category = product_title_block.xpath("span/a[2]/text()").extract_first()
             self.logger.debug(log_indent(".", "Handle {}".format(name)))
             link = response.url
@@ -108,7 +111,7 @@ class SellerSpider(RedisSpider):
             create_at = datetime.datetime.now()
             update_at = datetime.datetime.now()
 
-            self.logger.debug("::::Fetchr item {} - {} AED::::".format(name[10:], price))
+            # self.logger.debug("::::Fetchr item {} - {} AED::::".format(name[10:], price))
             yield SouqItem(name=name, category=category, link=link, price=price, trace_id=trace_id,
                            seller=seller, seller_link=seller_link,
                            description=description, create_at=create_at, update_at=update_at)
