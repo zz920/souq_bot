@@ -1,0 +1,7 @@
+# 2018-10-30 18:51:00
+1. Design the mongo collection to accept (time, price) pair
+2. Seperate Downloader with processer
+  1. Design common worker spider to download page to redis server
+  2. Design different handler to handle the data
+3. Adapt to scrapyd and scrapykeeper
+
