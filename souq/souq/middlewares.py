@@ -8,7 +8,7 @@
 import random
 
 from scrapy import signals
-from user_agents import AGENTS
+from .user_agents import AGENTS
 
 
 class SouqSpiderMiddleware(object):
@@ -87,7 +87,7 @@ class SouqDownloaderMiddleware(object):
         request.headers["Accept-Language"] = "en-US,en"
         request.headers["Host"] = "uae.souq.com"
         request.headers["Upgrade-Insecure-Requests"] = "1"
-        request.headres["Accept-Encoding"] = "gzip, deflate, br"
+        request.headers["Accept-Encoding"] = "gzip, deflate, br"
         return None
 
     def process_response(self, request, response, spider):
