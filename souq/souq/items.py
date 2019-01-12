@@ -23,7 +23,7 @@ class CategoryItem(scrapy.Item, MongoItemMixIn):
     collection_name = "Category"
 
 
-class SouqItem(scrapy.Item):
+class SouqItem(scrapy.Item, MongoItemMixIn):
     name = scrapy.Field()
     category = scrapy.Field()
     link = scrapy.Field()
