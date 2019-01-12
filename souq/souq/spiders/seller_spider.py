@@ -2,7 +2,7 @@ import os
 import re
 import traceback
 import scrapy
-import datetime
+from datetime import datetime
 
 from souq.items import CategoryItem, SouqItem
 from scrapy_redis.spiders import RedisSpider
@@ -111,8 +111,8 @@ class SellerSpider(RedisSpider):
                 if not seller_link:
                     raise Exception("Empty seller link.")
 
-            create_at = datetime.datetime.now()
-            update_at = datetime.datetime.now()
+            create_at = datetime.isoformat(datetime.now())
+            # update_at = datetime.datetime.now()
 
             # quantity
             match = re.search('"quantity":(?P<quantity>[0-9]+)', response.body.decode('utf-8', 'ignore'))
@@ -123,6 +123,6 @@ class SellerSpider(RedisSpider):
             # self.logger.debug("::::Fetchr item {} - {} AED::::".format(name[10:], price))
             yield SouqItem(name=name, category=category, link=link, price=price, trace_id=trace_id,
                            seller=seller, seller_link=seller_link, quantity=quantity,
-                           description=description, create_at=create_at, update_at=update_at)
+                           description=description, create_at=create_at)
         except Exception:
             self.logger.error("Exception {}, try {} manually".format(traceback.format_exc(), link))

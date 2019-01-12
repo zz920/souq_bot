@@ -30,7 +30,7 @@ class SouqItem(scrapy.Item):
     quantity = scrapy.Field()
     description = scrapy.Field()
     create_at = scrapy.Field()
-    update_at = scrapy.Field()
+    # update_at = scrapy.Field()
 
     collection_name = "Souqitem"
 
