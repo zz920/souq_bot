@@ -9,6 +9,7 @@ from scrapy_redis.spiders import RedisSpider
 
 
 log_indent = lambda t, s: t * 20 + s + t *20
+_to_url = lambda url: url if url.startswith("https://uae.souq.com") else "https://uae.souq.com" + url
 
 
 class SellerSpider(RedisSpider):
@@ -39,7 +40,7 @@ class SellerSpider(RedisSpider):
         self.logger.debug(log_indent("=", "Start Analyzing the item pages..."))
         for link in url_pool:
             start_page = "{}?ref=nav&section=2&page=1".format(link)
-            request = scrapy.Request(url=start_page, callback=self.parse_item_page)
+            request = scrapy.Request(url=_to_url(start_page), callback=self.parse_item_page)
             request.meta['ini_url'] = start_page
             yield request
 
@@ -58,7 +59,7 @@ class SellerSpider(RedisSpider):
         for item in item_block:
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
             if item_link:
-                request_list.append(scrapy.Request(url=item_link, callback=self.parse_detail))
+                request_list.append(scrapy.Request(url=_to_url(item_link), callback=self.parse_detail))
 
         self.logger.info("[{}] Total {} items for page {}".format(os.getpid(), len(request_list), ini_url))
         # enqueue requests
@@ -71,7 +72,8 @@ class SellerSpider(RedisSpider):
             self.logger.info("[{}] Page end at {}".format(os.getpid(), ini_url))
             return
 
-        request = scrapy.Request(url=next_page + "&section=2", callback=self.parse_item_page)
+
+        request = scrapy.Request(url=_to_url(next_page + "&section=2"), callback=self.parse_item_page)
         request.meta['ini_url'] = next_page + "&section=2"
         yield request
 
