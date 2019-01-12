@@ -57,7 +57,8 @@ class SellerSpider(RedisSpider):
         # page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1]
         for item in item_block:
             item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
-            request_list.append(scrapy.Request(url=item_link, callback=self.parse_detail))
+            if item_link:
+                request_list.append(scrapy.Request(url=item_link, callback=self.parse_detail))
 
         self.logger.info("[{}] Total {} items for page {}".format(os.getpid(), len(request_list), ini_url))
         # enqueue requests
@@ -106,14 +107,22 @@ class SellerSpider(RedisSpider):
                 seller_link = ""
             else:
                 seller = seller_block.xpath("b/text()").extract_first()
-                seller_link = response.xpath("@href").extract_first()
+                seller_link = seller_block.xpath("@href").extract_first()
+                if not seller_link:
+                    raise Exception("Empty seller link.")
 
             create_at = datetime.datetime.now()
             update_at = datetime.datetime.now()
 
+            # quantity
+            match = re.search('"quantity":(?P<quantity>[0-9]+)', response.body.decode('utf-8', 'ignore'))
+            if match:
+                quantity = match.group('quantity')
+            else:
+                raise Exception("Souq page changed the logic.")
             # self.logger.debug("::::Fetchr item {} - {} AED::::".format(name[10:], price))
             yield SouqItem(name=name, category=category, link=link, price=price, trace_id=trace_id,
-                           seller=seller, seller_link=seller_link,
+                           seller=seller, seller_link=seller_link, quantity=quantity,
                            description=description, create_at=create_at, update_at=update_at)
         except Exception:
             self.logger.error("Exception {}, try {} manually".format(traceback.format_exc(), link))

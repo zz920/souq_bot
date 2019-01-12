@@ -27,6 +27,7 @@ class SouqItem(scrapy.Item):
 
     seller = scrapy.Field()
     seller_link = scrapy.Field()
+    quantity = scrapy.Field()
     description = scrapy.Field()
     create_at = scrapy.Field()
     update_at = scrapy.Field()
