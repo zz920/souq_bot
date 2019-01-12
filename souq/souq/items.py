@@ -8,7 +8,12 @@ import pymongo
 import scrapy
 
 
-class CategoryItem(scrapy.Item):
+class MongoItemMixIn:
+    def to_dict(self):
+        return dict(self)
+
+
+class CategoryItem(scrapy.Item, MongoItemMixIn):
     # define the fields for your item here like:
     # name = scrapy.Field()
     parent = scrapy.Field()
@@ -34,17 +39,33 @@ class SouqItem(scrapy.Item):
 
     collection_name = "Souqitem"
 
+    def to_dict(self):
+        data = super(SouqItem, self).to_dict()
+        try:
+            data['price'] = float(data['price'])
+        except:
+            pass
+
+        try:
+            data['quantity'] = int(data['quantity'])
+        except:
+            pass
+        return data
+
 
 def create_index(db):
     db[CategoryItem.collection_name].create_index(
         [("link", pymongo.DESCENDING)],
-        unique=True
     )
     db[SouqItem.collection_name].create_index(
         [("link", pymongo.DESCENDING)],
-        unique=True
     )
     db[SouqItem.collection_name].create_index(
-        [("trace_id", pymongo.DESCENDING), ("create_at", pymongo.ASCENDING)],
-        unique=True
+        [("seller", pymongo.DESCENDING)],
+    )
+    db[SouqItem.collection_name].create_index(
+        [("trace_id", pymongo.DESCENDING)],
+    )
+    db[SouqItem.collection_name].create_index(
+        [("create_at", pymongo.DESCENDING)],
     )

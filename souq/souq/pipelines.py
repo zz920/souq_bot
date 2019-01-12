@@ -21,9 +21,10 @@ class SouqPipeline(object):
         create_index(self.db)
 
     def process_item(self, item, spider):
+        dict_item = item.to_dict()
         try:
             # try to use orm for mongo
-            self.db[item.collection_name].insert(dict(item))
+            self.db[item.collection_name].insert(dict_item)
         except:
             pass
         # spider.logger.info("Save the item into DB. Detail-{}".format(dict(item)))
