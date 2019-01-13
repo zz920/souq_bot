@@ -57,7 +57,7 @@ class SellerSpider(RedisSpider):
         item_block = response.xpath("//div[@class='column column-block block-grid-large single-item']")
         # page_num = re.findall("page=[0-9]*", response.url)[0].split("=")[-1]
         for item in item_block:
-            item_link = item.xpath("div//a[@class='img-link quickViewAction sPrimaryLink']/@href").extract_first()
+            item_link = item.xpath("div//a[@class='itemLink block sPrimaryLink']/@href").extract_first()
             if item_link:
                 request_list.append(scrapy.Request(url=_to_url(item_link), callback=self.parse_detail))
 
