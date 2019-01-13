@@ -41,7 +41,7 @@ class SellerSpider(RedisSpider):
         for link in url_pool:
             start_page = "{}?ref=nav&section=2&page=1".format(link)
             request = scrapy.Request(url=_to_url(start_page), callback=self.parse_item_page)
-            request.meta['ini_url'] = start_page
+            request.meta['ini_url'] = _to_url(start_page)
             yield request
 
     def parse_item_page(self, response):
@@ -74,7 +74,7 @@ class SellerSpider(RedisSpider):
 
 
         request = scrapy.Request(url=_to_url(next_page + "&section=2"), callback=self.parse_item_page)
-        request.meta['ini_url'] = next_page + "&section=2"
+        request.meta['ini_url'] = _to_url(next_page + "&section=2")
         yield request
 
     def parse_detail(self, response):
