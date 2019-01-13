@@ -40,7 +40,7 @@ ITEM_PIPELINES = {
 
 RETRY_ENABLED = True
 DOWNLOAD_TIMEOUT = 15
-REDIRECT_ENABLED = True
+REDIRECT_ENABLED = False
 
 DOWNLOADER_MIDDLEWARES = {
     'souq.middlewares.SouqDownloaderMiddleware': 400,
