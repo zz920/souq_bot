@@ -14,19 +14,17 @@ from souq.items import create_index
 
 class SouqPipeline(object):
     def __init__(self):
-        connection = pymongo.MongoClient(
-            settings['MONGODB_SERVER'],
-            settings['MONGODB_PORT']
-        )
+        connection = pymongo.MongoClient(settings['MONGODB_URI'])
         self.db = connection[settings['MONGODB_DB']]
 
     def open_spider(self, spider):
         create_index(self.db)
 
     def process_item(self, item, spider):
+        dict_item = item.to_dict()
         try:
             # try to use orm for mongo
-            self.db[item.collection_name].insert(dict(item))
+            self.db[item.collection_name].insert(dict_item)
         except:
             pass
         # spider.logger.info("Save the item into DB. Detail-{}".format(dict(item)))
